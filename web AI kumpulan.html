@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Link Pribadi</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Menggunakan font Inter sebagai default */
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        /* Style untuk scrollbar agar sesuai tema gelap */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1f2937; /* bg-gray-800 */
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4b5563; /* bg-gray-600 */
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6b7280; /* bg-gray-500 */
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200">
+
+    <div class="container mx-auto max-w-4xl p-4 md:p-8">
+        
+        <header class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-bold text-white mb-2">Daftar Link AI</h1>
+            <p class="text-gray-400">Koleksi website dan tools favorit Anda, semua di satu tempat.</p>
+        </header>
+
+        <main>
+            <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                <div id="category-filters" class="flex flex-wrap justify-center gap-2">
+                    </div>
+                <button id="show-form-btn" class="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-200">
+                    + Add new link
+                </button>
+            </div>
+
+            <div id="add-link-form-container" class="hidden bg-gray-800 p-6 rounded-lg mb-6">
+                <h3 class="text-xl font-bold mb-4">Add new link</h3>
+                <form id="add-link-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="md:col-span-2">
+                        <label for="url" class="block text-sm font-medium text-gray-300">URL Website *</label>
+                        <input type="url" id="url" name="url" placeholder="https://contoh.com" required class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-white">
+                    </div>
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-300">Nama Layanan *</label>
+                        <input type="text" id="name" name="name" placeholder="Nama Tampilan" required class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-white">
+                    </div>
+                    <div>
+                        <label for="category" class="block text-sm font-medium text-gray-300">Kategori *</label>
+                        <input type="text" id="category" name="category" placeholder="Teknologi" required class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-white">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="description" class="block text-sm font-medium text-gray-300">Deskripsi Singkat *</label>
+                        <input type="text" id="description" name="description" placeholder="Deskripsi singkat tentang link ini" required class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-white">
+                    </div>
+                    <div class="md:col-span-2">
+                         <p class="block text-sm font-medium text-gray-300 mb-2">Link Ikon (Opsional)</p>
+                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <input type="url" id="github" name="github" placeholder="URL GitHub" class="block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-white">
+                            <input type="url" id="extension" name="extension" placeholder="URL Ekstensi Chrome/Firefox" class="block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-white">
+                            <input type="url" id="video" name="video" placeholder="URL Video YouTube/Vimeo" class="block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-white">
+                         </div>
+                    </div>
+                    <div class="md:col-span-2 flex justify-end gap-3 mt-4">
+                        <button type="button" id="cancel-form-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-200">Batal</button>
+                        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-200">Simpan Link</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="links-container" class="space-y-3">
+                </div>
+
+        </main>
+        
+        <footer class="text-center mt-12 text-gray-500 text-sm">
+            <p>Dibuat oleh @nolandakmalst ❤️. Di-host di GitHub Pages/Netlify.</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // === DATA AWAL (JIKA LOCALSTORAGE KOSONG) ===
+            const initialLinks = [
+                {
+                    name: 'GitHub',
+                    url: 'https://github.com',
+                    description: 'Platform hosting kode dan kolaborasi untuk developer.',
+                    category: 'Teknologi',
+                    icons: { github: 'https://github.com/github' }
+                },
+                {
+                    name: 'Tailwind CSS',
+                    url: 'https://tailwindcss.com',
+                    description: 'Framework CSS utility-first untuk membuat desain kustom dengan cepat.',
+                    category: 'Teknologi',
+                    icons: { github: 'https://github.com/tailwindlabs/tailwindcss', video: 'https://www.youtube.com/watch?v=mr15Xzb1Ook' }
+                },
+                {
+                    name: 'uBlock Origin',
+                    url: 'https://ublockorigin.com/',
+                    description: 'Pemblokir iklan yang efisien dan ringan.',
+                    category: 'Keamanan',
+                    icons: { github: 'https://github.com/gorhill/uBlock', extension: 'https://chrome.google.com/webstore/detail/ublock-origin/cjpalhdlnbpafiamejdnhcphjbkeiagm' }
+                },
+                {
+                    name: 'YouTube',
+                    url: 'https://youtube.com',
+                    description: 'Platform berbagi video online terbesar di dunia.',
+                    category: 'Hiburan',
+                    icons: {}
+                },
+                 {
+                    name: '1.1.1.1',
+                    url: 'https://1.1.1.1',
+                    description: 'Layanan DNS resolver gratis yang cepat dan aman dari Cloudflare.',
+                    category: 'Keamanan',
+                    icons: {}
+                }
+            ];
+
+            // === ELEMEN DOM ===
+            const linksContainer = document.getElementById('links-container');
+            const categoryFiltersContainer = document.getElementById('category-filters');
+            const showFormBtn = document.getElementById('show-form-btn');
+            const addLinkFormContainer = document.getElementById('add-link-form-container');
+            const addLinkForm = document.getElementById('add-link-form');
+            const cancelFormBtn = document.getElementById('cancel-form-btn');
+
+            // === STATE APLIKASI ===
+            let links = [];
+            let currentCategory = 'All';
+
+            // === FUNGSI-FUNGSI ===
+
+            // Menyimpan data ke localStorage
+            const saveLinks = () => {
+                localStorage.setItem('myPersonalLinks', JSON.stringify(links));
+            };
+
+            // Memuat data dari localStorage atau menggunakan data awal
+            const loadLinks = () => {
+                const storedLinks = localStorage.getItem('myPersonalLinks');
+                links = storedLinks ? JSON.parse(storedLinks) : initialLinks;
+            };
+
+            // Render/menampilkan semua link ke halaman
+            const renderLinks = () => {
+                linksContainer.innerHTML = ''; // Kosongkan container
+                
+                const filteredLinks = currentCategory === 'All'
+                    ? links 
+                    : links.filter(link => link.category.toLowerCase() === currentCategory.toLowerCase());
+                
+                if (filteredLinks.length === 0) {
+                     linksContainer.innerHTML = `<div class="text-center p-8 bg-gray-800 rounded-lg">
+                        <p class="text-gray-400">Tidak ada link dalam kategori ini.</p>
+                     </div>`;
+                     return;
+                }
+
+                filteredLinks.forEach(link => {
+                    // Membuat elemen link
+                    const linkEl = document.createElement('div');
+                    linkEl.className = 'flex items-center bg-gray-800 p-4 rounded-lg hover:bg-gray-700 transition-all duration-200 group';
+                    
+                    // Membuat favicon
+                    // Menggunakan layanan Google untuk mengambil favicon secara otomatis
+                    const faviconUrl = `https://www.google.com/s2/favicons?sz=64&domain_url=${link.url}`;
+
+                    // HTML untuk setiap item link
+                    linkEl.innerHTML = `
+                        <div class="flex-shrink-0 mr-4">
+                            <img src="${faviconUrl}" alt="Favicon for ${link.name}" class="w-8 h-8 rounded-full object-cover">
+                        </div>
+
+                        <div class="flex-grow">
+                            <a href="${link.url}" target="_blank" rel="noopener noreferrer" class="text-lg font-bold text-white hover:text-indigo-400">${link.name}</a>
+                            <p class="text-gray-400 text-sm">- ${link.description}</p>
+                        </div>
+                        
+                        <div class="flex items-center space-x-3 ml-4">
+                            ${link.icons.github ? `
+                                <a href="${link.icons.github}" target="_blank" rel="noopener noreferrer" title="GitHub" class="text-gray-400 hover:text-white">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.168 6.839 9.492.5.092.682-.217.682-.482 0-.237-.009-.868-.014-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.031-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.378.203 2.398.1 2.651.64.7 1.03 1.595 1.03 2.688 0 3.848-2.338 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.001 10.001 0 0022 12c0-5.523-4.477-10-10-10z" clip-rule="evenodd" /></svg>
+                                </a>` : ''}
+                            ${link.icons.extension ? `
+                                <a href="${link.icons.extension}" target="_blank" rel="noopener noreferrer" title="Extension" class="text-gray-400 hover:text-white">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.583 3.001a2.5 2.5 0 00-4.992 0H3.998a1 1 0 00-1 1v11.002a1 1 0 001 1h4.085a2.5 2.5 0 004.992 0h4.083a1 1 0 001-1V4.001a1 1 0 00-1-1h-3.583zM12 4.501a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM19.998 19.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM12 18.001a2.5 2.5 0 00-2.5 2.5h5a2.5 2.5 0 00-2.5-2.5z" /></svg>
+                                </a>` : ''}
+                            ${link.icons.video ? `
+                                <a href="${link.icons.video}" target="_blank" rel="noopener noreferrer" title="Video" class="text-gray-400 hover:text-white">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M19.803 5.434a3.69 3.69 0 00-2.609-2.609C15.454 2.25 12 2.25 12 2.25s-3.454 0-5.194.575a3.69 3.69 0 00-2.609 2.609C3.621 7.174 3.75 12 3.75 12s-.129 4.826.575 6.566a3.69 3.69 0 002.609 2.609c1.74.575 5.194.575 5.194.575s3.454 0 5.194-.575a3.69 3.69 0 002.609-2.609c.575-1.74.575-6.566.575-6.566s0-4.826-.575-6.566zM10.125 15.75V8.25l6 3.75-6 3.75z" clip-rule="evenodd" /></svg>
+                                </a>` : ''}
+                            
+                            <button data-url="${link.url}" class="delete-btn text-gray-500 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity" title="Hapus Link">
+                               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            </button>
+                        </div>
+                    `;
+                    linksContainer.appendChild(linkEl);
+                });
+            };
+
+            // Render tombol-tombol filter kategori
+            const renderCategoryFilters = () => {
+                const categories = ['All', ...new Set(links.map(link => link.category))];
+                categoryFiltersContainer.innerHTML = '';
+                categories.forEach(category => {
+                    const button = document.createElement('button');
+                    button.textContent = category;
+                    button.dataset.category = category;
+                    button.className = `px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200 ${currentCategory === category ? 'bg-indigo-600 text-white' : 'bg-gray-700 hover:bg-gray-600 text-gray-300'}`;
+                    categoryFiltersContainer.appendChild(button);
+                });
+            };
+            
+            // Menangani klik pada tombol filter
+            const handleCategoryFilter = (e) => {
+                if(e.target.tagName === 'BUTTON') {
+                    currentCategory = e.target.dataset.category;
+                    renderCategoryFilters(); // re-render tombol untuk update style active
+                    renderLinks();
+                }
+            };
+
+            // Menangani penambahan link baru
+            const handleAddLink = (e) => {
+                e.preventDefault();
+                const formData = new FormData(addLinkForm);
+                
+                const newLink = {
+                    url: formData.get('url'),
+                    name: formData.get('name'),
+                    category: formData.get('category'),
+                    description: formData.get('description'),
+                    icons: {
+                        github: formData.get('github'),
+                        extension: formData.get('extension'),
+                        video: formData.get('video'),
+                    }
+                };
+                
+                // Cek duplikat berdasarkan URL
+                if (links.some(link => link.url === newLink.url)) {
+                    alert('Error: URL ini sudah ada dalam daftar!');
+                    return;
+                }
+                
+                links.unshift(newLink); // Tambahkan ke awal array
+                saveLinks();
+                init(); // Re-initialize untuk update kategori dan daftar
+                addLinkForm.reset();
+                addLinkFormContainer.classList.add('hidden');
+            };
+
+            // Menangani penghapusan link
+            const handleDeleteLink = (e) => {
+                const deleteButton = e.target.closest('.delete-btn');
+                if (deleteButton) {
+                    const urlToDelete = deleteButton.dataset.url;
+                    if (confirm(`Apakah Anda yakin ingin menghapus link ini?\n${urlToDelete}`)) {
+                        links = links.filter(link => link.url !== urlToDelete);
+                        saveLinks();
+                        init();
+                    }
+                }
+            };
+            
+            // Inisialisasi aplikasi
+            const init = () => {
+                loadLinks();
+                renderCategoryFilters();
+                renderLinks();
+            };
+
+            // === EVENT LISTENERS ===
+            showFormBtn.addEventListener('click', () => addLinkFormContainer.classList.remove('hidden'));
+            cancelFormBtn.addEventListener('click', () => addLinkFormContainer.classList.add('hidden'));
+            addLinkForm.addEventListener('submit', handleAddLink);
+            categoryFiltersContainer.addEventListener('click', handleCategoryFilter);
+            linksContainer.addEventListener('click', handleDeleteLink);
+
+            // === MULAI APLIKASI ===
+            init();
+        });
+    </script>
+
+</body>
+</html>
